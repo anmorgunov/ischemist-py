@@ -21,17 +21,31 @@ class Color:
         if len(hex_value) != 6 or not all(c in "0123456789ABCDEFabcdef" for c in hex_value):
             raise ValueError(f"Invalid hex color code: {self.hex_code}")
 
-    @property
-    def rgb(self) -> tuple[int, int, int]:
+    def to_rgb(self) -> tuple[int, int, int]:
         """Convert hex to RGB tuple."""
         hex_value = self.hex_code.lstrip("#")
         r, g, b = (int(hex_value[i : i + 2], 16) for i in (0, 2, 4))
         return r, g, b
 
-    @property
-    def hsv(self) -> tuple[float, float, float]:
+    def to_rgb_str(self) -> str:
+        """Convert hex to RGB string."""
+        r, g, b = self.to_rgb()
+        return f"rgb({r}, {g}, {b})"
+
+    def to_rgba(self, alpha: float = 1.0) -> tuple[int, int, int, float]:
+        """Convert hex to RGBA tuple."""
+        hex_value = self.hex_code.lstrip("#")
+        r, g, b = (int(hex_value[i : i + 2], 16) for i in (0, 2, 4))
+        return r, g, b, alpha
+
+    def to_rgba_str(self, alpha: float = 1.0) -> str:
+        """Convert hex to RGBA string."""
+        r, g, b, a = self.to_rgba(alpha)
+        return f"rgba({r}, {g}, {b}, {a})"
+
+    def to_hsv(self) -> tuple[float, float, float]:
         """Convert to HSV for hue-based comparisons."""
-        r, g, b = self.rgb
+        r, g, b = self.to_rgb()
         return colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
 
     def __str__(self) -> str:
@@ -66,6 +80,12 @@ class ColorPalette:
 
     def __len__(self) -> int:
         return len(self.colors)
+
+    def __getitem__(self, index: int) -> Color:
+        return self.colors[index]
+
+    def __iter__(self) -> Iterator[Color]:
+        return iter(self.colors)
 
     def iter_n(self, count: int, reverse: bool = False) -> Iterator[Color]:
         """
@@ -128,15 +148,27 @@ class ColorPalette:
         return [color.hex_code for color in selected]
 
 
-blue_4 = ["#0000ff", "#4040ff", "#8080ff", "#bfbfff"]
-blue_4_dark = ["#00002e", "#000062", "#000096", "#0000cb"]
-purple_4 = ["#7209b7", "#8e2cc5", "#aa4fd4", "#c771e2"]
-purple_4_dark = ["#0e0016", "#27023e", "#400466", "#59078f"]
-red_4 = ["#d80032", "#df234e", "#e6476a", "#ed6a85"]
-red_4_dark = ["#560000", "#76000c", "#970019", "#b80026"]
-green_4 = ["#006400", "#337b02", "#669204", "#99a806"]
-green_4_dark = ["#002400", "#003400", "#004400", "#005400"]
 # fmt:off
+blue_4 = ColorPalette.from_hex_codes(["#0000ff", "#4040ff", "#8080ff", "#bfbfff"])
+blue_4_dark = ColorPalette.from_hex_codes(["#00002e", "#000062", "#000096", "#0000cb"])
+purple_4 = ColorPalette.from_hex_codes(["#7209b7", "#8e2cc5", "#aa4fd4", "#c771e2"])
+purple_4_dark = ColorPalette.from_hex_codes(["#0e0016", "#27023e", "#400466", "#59078f"])
+red_4 = ColorPalette.from_hex_codes(["#d80032", "#df234e", "#e6476a", "#ed6a85"])
+red_4_dark = ColorPalette.from_hex_codes(["#560000", "#76000c", "#970019", "#b80026"])
+green_4 = ColorPalette.from_hex_codes(["#006400", "#337b02", "#669204", "#99a806"])
+green_4_dark = ColorPalette.from_hex_codes(["#002400", "#003400", "#004400", "#005400"])
+qualitative_light = ColorPalette.from_hex_codes([
+    '#ff4d4d', '#ff7f50', '#ffff00', '#00ff7f', '#00ffff',
+    '#1e90ff', '#9370db', '#ff69b4', '#cd5c5c', '#8fbc8f',
+    '#ffd700', '#32cd32', '#00bfff', '#ff00ff', '#ff8c00'
+])
+
+qualitative_dark = ColorPalette.from_hex_codes([
+    '#cc0000', '#cc5500', '#cccc00', '#00cc66', '#00cccc',
+    '#0066cc', '#6a5acd', '#ff1493', '#8b0000', '#2e8b57',
+    '#daa520', '#228b22', '#0099cc', '#cc00cc', '#d2691e'
+])
+
 blue_20 = ColorPalette.from_hex_codes(
     ["#0026D0","#002FD2","#0039D5","#0042D7","#004CDA","#0055DC","#005FDF","#0068E1","#0071E4","#007BE6",
      "#0084E9","#008EEB","#0097EE","#00A0F0","#00AAF3","#00B3F5","#00BDF8","#00C6FA","#00D0FD","#00D9FF"])
